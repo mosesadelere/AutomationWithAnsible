@@ -1,0 +1,91 @@
+---
+
+
+- name: Configure Load Balancer with Nginx and deploy sample web application
+  hosts: lb
+  become: yes
+  become_method: sudo
+  gather_facts: no
+
+  tasks:
+    - name: Add Nginx repository
+      yum_repository:
+        name: nginx
+        baseurl: http://nginx.org/packages/centos/$releasever/$basearch/
+        gpgcheck: 1
+        enabled: yes
+        state: present
+      tags:
+        - nginx
+        - repository
+
+    - name: Install Nginx and git packages
+      yum:
+        name:
+          - nginx
+          - git
+        state: present
+        update_cache: yes
+      tags:
+        - nginx
+        - git
+        - install
+
+    - name: Start and enable Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      tags:
+        - nginx
+        - service
+
+    - name: Deploy sample web application from GitHub
+      git:
+        repo: https://github.com/schoolofdevops/html-sample-app.git
+        dest: /usr/share/nginx/html
+        version: master
+        force: yes
+      tags:
+        - webapp
+        - deploy
+
+    - name: Ensure ownership of web files is correct
+      file:
+        path: /usr/share/nginx/html
+        owner: nginx
+        group: nginx
+        mode: '0755'
+        state: directory
+      tags:
+        - webapp
+        - permissions
+      
+    - name: Verify Nginx is serving the sample web application
+      command: systemctl status nginx
+      register: nginx_status
+      failed_when: nginx_status.rc != 0
+      changed_when: false
+      tags:
+        - nginx
+        - verify
+
+    - name: Make HTTP request to Nginx and capture response
+      uri:
+        url: http://localhost/app
+        return_content: yes
+      register: nginx_response
+      failed_when: nginx_response.status != 200
+      changed_when: false
+      tags:
+        - nginx
+        - verify
+
+    - name: Display Nginx response content
+      debug:
+        msg: "{{ nginx_response.content }}"
+        validate by content: http://localhost/app
+        Nginx status: "{{ nginx_status.stdout | default('Nginx status not available') }}"
+      tags:
+        - nginx
+        - verify

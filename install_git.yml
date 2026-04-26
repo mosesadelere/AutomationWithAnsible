@@ -1,18 +1,55 @@
 ---
 
-- name: Install Git
-  hosts: all
+- name: base systems configurations for linux servers
+  hosts: prod
   become: yes
-
+  gather_facts: yes
   tasks:
-    - name: Install Git package
-      apt:
-        name: git
-        state: present
-      when: ansible_os_family == "Debian"
+        - name: Create admin user
+          user:
+            name: admin
+            state: present
+            uid: 5001
 
-    - name: Install Git package
-      yum:
-        name: git
+        - name: remove dojo
+          user:
+            name: dojo
+            state: absent
+
+        - name: Install tree using yum with explicit repo
+          shell: |
+            yum install -y tree \
+            --disablerepo='*' \
+            --enablerepo=baseos,appstream \
+            --setopt=baseos.baseurl=http://vault.centos.org/centos/8/BaseOS/x86_64/os/ \
+            --setopt=appstream.baseurl=http://vault.centos.org/centos/8/AppStream/x86_64/os/ \
+            --nogpgcheck
+        
+          args:
+            warn: false
+          register: install_result
+
+    
+- name: configuring app servers only
+  hosts: app
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: create a deploy user
+      user:  
+        name: deploy
+        uid: 1001
         state: present
-      when: ansible_os_family == "RedHat"
+    
+    - name: install git using explicit repo (same as tree)
+      shell: |
+        yum install -y git \
+          --disablerepo='*' \
+          --enablerepo=baseos,appstream,extras \
+          --setopt=baseos.baseurl=http://vault.centos.org/centos/8/BaseOS/x86_64/os/ \
+          --setopt=appstream.baseurl=http://vault.centos.org/centos/8/AppStream/x86_64/os/ \
+          --setopt=extras.baseurl=http://vault.centos.org/centos/8/extras/x86_64/os/ \
+          --nogpgcheck
+      args:
+        warn: false
+      register: git_install
