@@ -1,0 +1,8 @@
+[localhost]
+127.0.0.1
+
+[Ubuntu]
+192.168.180.131 ansible_ssh_user=mosesadelere
+
+[Ubuntu_WSL]
+192.168.180.136 ansible_ssh_user=mosesadelere
