@@ -1,0 +1,20 @@
+---
+
+- name: Enable and start httpd service
+  block:
+    - name: try systemd method
+      ansible.builtin.service:
+        name: httpd
+        enabled: yes
+        state: started
+      register: httpd_service
+      retries: 3
+      delay: 5
+      until: httpd_service is succeeded
+  rescue:
+    - name: Start httpd manually (containers)
+      ansible.builtin.shell: /usr/sbin/httpd
+      args:
+        creates: /var/run/httpd/httpd.pid
+        
+    

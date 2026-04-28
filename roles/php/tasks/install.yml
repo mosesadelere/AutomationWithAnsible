@@ -1,0 +1,12 @@
+---
+
+- name: install php packages
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+    disable_gpg_check: yes
+    skip_broken: yes
+  with_items:
+    - php
+    - php-mysqlnd
+  notify: restart apache service
