@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for frontend
+app_name: "app"
+app_base_dir: "/opt/{{ app_name }}"
+app_version: "v1.1"
+app_repo: "https://github.com/devopsdemoapp/devops-demo-app.git"
+app_release_url: "{{ app_repo }}/releases/download/{{ app_version }}/{{ app_name }}.tar.gz"
+app_extract_dir: "{{ app_release_url }}/{{ app_name }}"
+app_env: "LOCALDEV"
+
+dbconn:
+  host: "localhost"
+  port: 3306
+  user: "appuser"
+  password: "appuser"
+  name: "appdb"
+
+fav:
+  color: "blue"
+  food: "pizza"
+  car: "ferrari"
+  laptop: "lenovo"
+  animals:
+    - "dog"
+    - "cat"
+    - "hamster"

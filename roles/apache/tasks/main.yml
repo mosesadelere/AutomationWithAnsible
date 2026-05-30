@@ -4,3 +4,7 @@
 - import_tasks: install.yml
 - import_tasks: service.yml
 - import_tasks: config.yml
+- include_vars: "{{ ansible_os_family }}.yml"
+- include: install.yml
+- include: start.yml
+- include: config_{{ ansible_os_family }}.yml

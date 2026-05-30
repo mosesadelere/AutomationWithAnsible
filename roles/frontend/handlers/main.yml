@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for frontend
+- name: Restart apache service
+  systemd:
+    name: apache
+    state: restarted
+    enabled: true
+  become: true
+  tags: [service, restart]

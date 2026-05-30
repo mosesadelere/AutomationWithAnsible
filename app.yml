@@ -3,6 +3,11 @@
 - name: application server playbook
   hosts: app
   become: yes
+  vars:
+    fav:
+      color: "green"
+      food: "pasta"
   roles:
     - apache
     - php
+    - frontend

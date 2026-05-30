@@ -1,0 +1,7 @@
+---
+apache:
+  packages:
+    - httpd
+  service_name: httpd
+  service_state: started
+  service_enabled: yes

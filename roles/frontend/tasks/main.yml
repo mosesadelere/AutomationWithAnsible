@@ -1,0 +1,57 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for frontend
+- name: Create application base directory
+  file:
+    path: "{{ app_release_url }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  tags: [deploy, directory]
+
+- name: install unzip package
+  package:
+    name: unzip
+    state: present
+  become: true
+  tags: [deploy, unzip]
+
+- name: Download application release
+  get_url:
+    url: "{{ app_release_url }}"
+    dest: "/tmp/{{ app_name }}.tar.gz"
+    mode: '0644'
+  tags: [deploy, download]
+
+- name: Extract application release
+  unarchive:
+    src: "/tmp/{{ app_name }}.tar.gz"
+    dest: "{{ app_extract_dir }}"
+    remote_src: yes
+    creates: "{{ app_extract_dir }}/{{ app_name }}"
+  tags: [deploy, extract]
+
+- name: Ensure application directory has correct permissions
+  file:
+    path: "{{ app_extract_dir }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  tags: [deploy, permissions]
+
+- name: create symbolic link to application
+  file:
+    src: "{{ app_extract_dir }}/{{ app_name }}"
+    dest: "{{ app_base_dir }}"
+    state: link
+  tags: [deploy, symlink]
+
+- name: add application configuration file
+  template:
+    src: "config.ini.j2"
+    dest: "/var/www/html/{{ app_name }}/config.ini"
+    mode: '0644'
+  notify: restart apache
+  tags: [deploy, config]

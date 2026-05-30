@@ -1,0 +1,26 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for systems
+- name: Create admin user
+  user:
+    name: admin
+    state: present
+    uid: 5001
+
+- name: remove dojo
+  user:
+    name: dojo
+    state: absent
+
+- name: Install tree using yum with explicit repo
+  shell: |
+     yum install -y tree \
+       --disablerepo='*' \
+       --enablerepo=baseos,appstream \
+       --setopt=baseos.baseurl=http://vault.centos.org/centos/8/BaseOS/x86_64/os/ \
+       --setopt=appstream.baseurl=http://vault.centos.org/centos/8/AppStream/x86_64/os/ \
+       --nogpgcheck
+        
+     args:
+       warn: false
+     register: install_result

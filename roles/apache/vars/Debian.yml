@@ -1,0 +1,9 @@
+---
+
+apache:
+  package:
+    name: apache2
+  service:
+    name: apache2
+    state: started
+    enabled: true
